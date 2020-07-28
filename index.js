@@ -26,7 +26,7 @@ class AttendanceProcessor {
   }
 
   async getData() {
-    let csvPath = "C:/Users/irads/Desktop/coding/attendance-processor/data.csv";
+    let csvPath = "C:/Users/irads/Desktop/sl-attendance/data.csv";
     try {
       await this.readCSV(csvPath);
     } catch {
@@ -77,18 +77,23 @@ class AttendanceProcessor {
 
   async process() {
     console.log(
-      "\n\n\t( ✪ ω ✪ ): Hi there, welcome to AttendanceProcessor! I will process who's submitted attendance for today and which students are at 8 hours of total absences in the last 30 days.\n\n"
+      "\n\n( ✪ ω ✪ ):\n\tHi there, welcome to AttendanceProcessor! I will process who's submitted attendance for today and which students are at 8 hours of total absences in the last 30 days.\n\n"
     );
     this.getData(); //getData asks readCSV to read the CSV and save data to the class
 
     this.makeListOfTLs(); //makes a list of the tl's listed in the records
 
     //find who forgot and make list to show
-    console.log(
-      "\n▶ PLEASE REMIND THESE TLS TO SUBMIT ATTENDANCE FOR TODAY: ◀\n",
-      this.findTLsWhoForgotToSubmit(),
-      "\n\n"
-    );
+    let forgot = this.findTLsWhoForgotToSubmit();
+    forgot.length > 0
+      ? console.log(
+          "\n▶ PLEASE REMIND THESE TLS TO SUBMIT ATTENDANCE FOR TODAY: ◀\n",
+          forgot,
+          "\n\n"
+        )
+      : console.log(
+          "\n\\(@^0^@)/:\n❤ ❤ ❤ ❤ ❤ \nPLEASE THANK YOUR TLS FOR SUBMITTING ATTENDANCE ON TIME TODAY \n❤ ❤ ❤ ❤ ❤\n\n"
+        );
   }
 }
 
