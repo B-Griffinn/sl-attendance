@@ -5,9 +5,9 @@ const config = require("./config");
 class AttendanceProcessor {
   constructor() {
     this.data = [];
-    this.tls = new Set();
+    this.dataPath = "C:/Users/irads/Desktop/sl-attendance/data.csv"; // ◀◀◀ UPDATE THIS LINE WITH YOUR DOWNLOADED CSV
     this.students = new Map();
-
+    this.tls = new Set();
     this.today = new Date();
     this.day = this.today.getDate();
     this.month = this.today.getMonth() + 1; // getMonth is 0 indexed
@@ -23,9 +23,8 @@ class AttendanceProcessor {
   }
 
   async getData() {
-    let csvPath = "C:/Users/irads/Desktop/sl-attendance/data.csv";
     try {
-      await this.readCSV(csvPath);
+      await this.readCSV(this.dataPath);
     } catch {
       console.log("error");
     }
@@ -110,7 +109,7 @@ class AttendanceProcessor {
       if (typeof student !== "number") {
         //this means they've had absent-related data added to them; otherwise, it'd be 0
 
-        if (student.hours >= 8) {
+        if (student.hours >= 8 && student.hours <= 30) {
           listToConsiderForEscalation.push(student);
         } else {
           // console.log(student.hours);
@@ -149,6 +148,9 @@ class AttendanceProcessor {
         );
 
     //make list of students who may need to be escalated, depending on whether excused
+    console.log(
+      "\n\n( ✪ ω ✪ ):\n\n\t▶ PLEASE CHECK IN WITH THESE STUDENTS AND DECIDE IF IT'S APPROPRIATE TO ESCALATE TO STUDENT SUCCESS: \n\n▼ ▼ ▼ ▼ ▼"
+    );
     this.calculateAbsences();
   }
 }
