@@ -6,6 +6,7 @@ class AttendanceProcessor {
   constructor() {
     this.data = [];
     this.dataPath = "C:/Users/irads/Desktop/sl-attendance/data.csv"; // ◀◀◀ UPDATE THIS LINE WITH YOUR DOWNLOADED CSV
+    //⚠⚠⚠ THIS MUST BE THE WHOLE FILE PATH OR IT WON'T WORK
     this.students = new Map();
     this.tls = new Set();
     this.today = new Date();

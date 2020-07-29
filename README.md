@@ -5,7 +5,7 @@
 Welcome to sl-attendance. This is a small tool I made to easily keep track of attendance, both TLs and students. This program prints a list of 2 things at this time:
 
 - TLs who need to submit attendance
-- Students who's absences are between 8 and 30 hours (if I include over 30 hours absent, the list is full of MIA folks, withdrawn folks, etc.)
+- Students whose absences are between 8 and 30 hours (if I include over 30 hours absent, the list is full of MIA folks, withdrawn folks, etc.)
 
 ## Set Up
 
