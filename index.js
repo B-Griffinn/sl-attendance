@@ -1,16 +1,13 @@
 const fs = require("fs");
 const Papa = require("papaparse");
 const config = require("./config");
-const { Console } = require("console");
 
 class AttendanceProcessor {
   constructor() {
     this.data = [];
     this.tls = new Set();
-    //student = record[1]
-    // notes = record[3];
-    // isPresent = record[4];
-    // startOrStandUp = record[6];
+    this.students = new Map();
+
     this.today = new Date();
     this.day = this.today.getDate();
     this.month = this.today.getMonth() + 1; // getMonth is 0 indexed
@@ -34,12 +31,27 @@ class AttendanceProcessor {
     }
   }
 
-  makeListOfTLs() {
-    for (let i = 1; i < this.data.length; i++) {
-      let record = this.data[i];
+  makeListOfTLsAndStudents() {
+    let { data, tls, students } = this;
+    let removedDuplicates = new Set();
+    let totalHoursAbsent = 0; //starting point to add to later
+
+    for (let i = 1; i < data.length; i++) {
+      let record = data[i];
+
+      //add tl
       let tl = record[0];
-      this.tls.add(tl);
+      tls.add(tl);
+
+      //add student
+      let name = record[1];
+      removedDuplicates.add(name);
     }
+
+    removedDuplicates.forEach((name) => {
+      //move to a Map for easier search
+      students.set(name, totalHoursAbsent);
+    });
   }
 
   findTLsWhoForgotToSubmit() {
@@ -70,9 +82,50 @@ class AttendanceProcessor {
     });
   }
 
-  calculateLast30DaysOfAbsences() {
-    console.log();
-    return;
+  calculateAbsences() {
+    //get records of absences
+    let { data, students } = this;
+
+    //filter for absences
+    let absences = data.filter((record) => {
+      let isPresent = record[4].toLowerCase();
+
+      return isPresent === "false";
+    });
+
+    //go through absences and tally up the total values for each student
+    absences.forEach((record) => {
+      let name = record[1];
+      let notes = record[3];
+
+      let currentHours = students.get(name);
+      let hours = currentHours.hours ? currentHours.hours + 4 : 4; //starting point is 0, object added if above 0
+
+      students.set(name, { name, notes, hours });
+    });
+
+    let listToConsiderForEscalation = [];
+
+    students.forEach((student) => {
+      if (typeof student !== "number") {
+        //this means they've had absent-related data added to them; otherwise, it'd be 0
+
+        if (student.hours >= 8) {
+          listToConsiderForEscalation.push(student);
+        } else {
+          // console.log(student.hours);
+        }
+      }
+    });
+
+    listToConsiderForEscalation = listToConsiderForEscalation.sort((a, b) =>
+      a.name < b.name ? -1 : 1
+    );
+
+    listToConsiderForEscalation.forEach((student) => {
+      let { name, notes, hours } = student;
+      console.log(name, hours, notes);
+    });
   }
 
   async process() {
@@ -81,7 +134,7 @@ class AttendanceProcessor {
     );
     this.getData(); //getData asks readCSV to read the CSV and save data to the class
 
-    this.makeListOfTLs(); //makes a list of the tl's listed in the records
+    this.makeListOfTLsAndStudents(); //makes a list of the tl's listed in the records
 
     //find who forgot and make list to show
     let forgot = this.findTLsWhoForgotToSubmit();
@@ -94,9 +147,12 @@ class AttendanceProcessor {
       : console.log(
           "\n\\(@^0^@)/:\n❤ ❤ ❤ ❤ ❤ \nPLEASE THANK YOUR TLS FOR SUBMITTING ATTENDANCE ON TIME TODAY \n❤ ❤ ❤ ❤ ❤\n\n"
         );
+
+    //make list of students who may need to be escalated, depending on whether excused
+    this.calculateAbsences();
   }
 }
 
-test = new AttendanceProcessor();
+attendanceBot = new AttendanceProcessor();
 
-test.process();
+attendanceBot.process();
